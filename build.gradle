@@ -1,86 +1,88 @@
-apply plugin: 'java'
-apply plugin: 'jvm-component'
-apply plugin: 'java-lang'
+// vim: set syntax=groovy sts=4 ts=8 et:
+// -*- tab-width:8; indent-tabs-mode:nil; c-basic-offset:4; -*-
+/*
+ * Copyright (c)
+ *   2023 FAU -- Joachim Falk <joachim.falk@fau.de>
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
 
-// This is for eclipse
+plugins {
+    id 'java'
+}
+
+buildDir = 'obj-gradle'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        name "jitpack"
+        url 'https://jitpack.io'
+    }
+}
+
 dependencies {
-  opt4jDependencies.each {
-    compile rootProject.project('opt4j:'+it)
-  }
-  opendseDependencies.each {
-    compile rootProject.project('opendse:'+it)
-  }
-//compile parent.project("dseclu").fileTree(dir: 'lib', include: '*.jar')
-  compile group: 'jdom', name: 'jdom', version: '1.1'
-  compile group: 'net.sf.jung', name: 'jung-api',           version: '2.0.1'
-  compile group: 'net.sf.jung', name: 'jung-graph-impl',    version: '2.0.1'
-  compile group: 'net.sf.jung', name: 'jung-algorithms',    version: '2.0.1'
-  compile group: 'net.sf.jung', name: 'jung-visualization', version: '2.0.1'
-  compile group: 'com.google.inject',            name: 'guice', version: '4.1.0'
-  compile group: 'com.google.inject.extensions', name: 'guice-multibindings', version: '4.1.0'
-  compile group: 'net.sourceforge.collections', name: 'collections-generic', version: '4.01'
+    if ((rootProject.subprojects.findAll { it.name == "opendse" }).isEmpty()) {
+        implementation 'com.github.JoachimFalk.dse-opendse:opendse-optimization:-SNAPSHOT'
+        implementation 'com.github.JoachimFalk.dse-opendse:opendse-realtime:-SNAPSHOT'
+    } else {
+	implementation project(':opendse:opendse-optimization')
+	implementation project(':opendse:opendse-realtime')
+    }
+    if ((rootProject.subprojects.findAll { it.name == "opt4j" }).isEmpty()) {
+        implementation 'com.github.JoachimFalk.dse-opt4j:opt4j-core:v3.3.0.JF1'
+    } else {
+        implementation project(":opt4j:opt4j-core")
+    }
 }
 
 sourceSets {
-    playground {
-//      analysis("main", it)
+    main {
         java {
-//          analysis("main.java", it)
-            srcDir "src/playground/java"
-            srcDir "${buildDir}/src/playground/java"
+            srcDir "src/main/java"
+            srcDir "${buildDir}/src/main/java"
         }
     }
 }
 
-//// This is for eclipse
-//sourceSets {
-//  evaluatorCS12DSE
-//}
-//
-////apply plugin: 'de.jfalk.gradle.utilities'
-//
-////Creating LanguageSourceSets via the model DSL
-//model {
-//  components {
-//    playground(JvmLibrarySpec) {
-//      sources {
-//        java {
-//          source {
-////          srcDir "src/playground/java"
-////          include "**/*"
-//          }
-//          dependencies {
-////          analysis "dependencies", it
-//            module 'jdom:jdom:1.1'
-//            module 'net.sf.jung:jung-api:2.0.1'
-//            module 'net.sf.jung:jung-graph-impl:2.0.1'
-//            module 'net.sf.jung:jung-algorithms:2.0.1'
-//            module 'net.sf.jung:jung-visualization:2.0.1'
-//            module 'com.google.inject:guice:4.1.0'
-//            module 'com.google.inject.extensions:guice-multibindings:4.1.0'
-//            module 'net.sourceforge.collections:collections-generic:4.01'
-//          }
-//        }
-//        binaries.all {
-//          tasks.withType(JavaCompile) { task ->
-////          task.sourceCompatibility = 1.6
-//            opt4jDependencies.each {
-//              task.dependsOn rootProject.project("opt4j:"+it).jar
-//              task.classpath += files(rootProject.project("opt4j:"+it).jar.archivePath)
-////            task.classpath += parent.project("dseclu").fileTree(dir: 'lib', include: '*.jar')
-//            }
-//            opendseDependencies.each {
-//              task.dependsOn rootProject.project("opendse:"+it).jar
-//              task.classpath += files(rootProject.project("opendse:"+it).jar.archivePath)
-////            task.classpath += parent.project("dseclu").fileTree(dir: 'lib', include: '*.jar')
-//            }
-//          }
-//          tasks.withType(AbstractArchiveTask) {
-//            project.jar.dependsOn it
-//            project.jar.from zipTree(it.archivePath)
-//          }
-//        }
-//      }
-//    }
-//  }
-//}
+if (rootProject.getPath() == getPath()) {
+    wrapper {
+        distributionType = Wrapper.DistributionType.ALL
+        gradleVersion = '6.6.1'
+    }
+
+    task 'dse-dist'(dependsOn: jar, type: Jar) {
+        group = "Build"
+        description = "This task assembles the self-contained dse-dist.jar"
+        destinationDirectory = new File(project.buildDir, 'dse-dist')
+        archiveFileName = 'dse-dist.jar'
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE // allow duplicates
+        from {
+            configurations.runtimeClasspath.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+        with jar
+        manifest {
+            attributes 'Main-Class': 'org.opt4j.core.start.Opt4J'
+        }
+    }
+
+    task 'run'(dependsOn: 'dse-dist', type: JavaExec) {
+        main = 'org.opt4j.core.start.Opt4J'
+        classpath = files(tasks.'dse-dist'.archivePath)
+    }
+}
