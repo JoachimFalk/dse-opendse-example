@@ -66,7 +66,7 @@ if (rootProject.getPath() == getPath()) {
 
     task 'dse-dist'(dependsOn: jar, type: Jar) {
         group = "Build"
-        description = "This task assembles the self-contained dse-dist.jar"
+        description = "Assemble self-contained dse-dist.jar"
         destinationDirectory = new File(project.buildDir, 'dse-dist')
         archiveFileName = 'dse-dist.jar'
         duplicatesStrategy = DuplicatesStrategy.INCLUDE // allow duplicates
@@ -82,6 +82,8 @@ if (rootProject.getPath() == getPath()) {
     }
 
     task 'run'(dependsOn: 'dse-dist', type: JavaExec) {
+        group = "Run"
+        description = "Start OpenDSE"
         main = 'org.opt4j.core.start.Opt4J'
         classpath = files(tasks.'dse-dist'.archivePath)
     }
