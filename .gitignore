@@ -1,2 +1,6 @@
 .gradle
-obj-gradle
+.classpath
+.project
+.settings/
+bin/
+obj-gradle/
