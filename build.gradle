@@ -1,4 +1,4 @@
-// vim: set syntax=groovy sts=4 ts=8 et:
+// vim: set syntax=groovy sw=4 sts=4 ts=8 et:
 // -*- tab-width:8; indent-tabs-mode:nil; c-basic-offset:4; -*-
 /*
  * Copyright (c)
@@ -36,11 +36,11 @@ repositories {
 
 dependencies {
     if ((rootProject.subprojects.findAll { it.name == "opendse" }).isEmpty()) {
-        implementation 'com.github.JoachimFalk.dse-opendse:opendse-optimization:-SNAPSHOT'
-        implementation 'com.github.JoachimFalk.dse-opendse:opendse-realtime:-SNAPSHOT'
+        implementation 'com.github.JoachimFalk.dse-opendse:opendse-optimization:v1.JF9'
+        implementation 'com.github.JoachimFalk.dse-opendse:opendse-realtime:v1.JF9'
     } else {
-	implementation project(':opendse:opendse-optimization')
-	implementation project(':opendse:opendse-realtime')
+        implementation project(':opendse:opendse-optimization')
+        implementation project(':opendse:opendse-realtime')
     }
     if ((rootProject.subprojects.findAll { it.name == "opt4j" }).isEmpty()) {
         implementation 'com.github.JoachimFalk.dse-opt4j:opt4j-core:v3.3.0.JF1'
