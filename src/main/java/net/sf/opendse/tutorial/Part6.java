@@ -1,5 +1,11 @@
-/*******************************************************************************
- * Copyright (c) 2015 OpenDSE
+// -*- tab-width:8; indent-tabs-mode:nil; c-basic-offset:4; -*-
+// vim: set sw=4 ts=8 et:
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c)
+ *   2014 Martin Lukasiewycz <lukasiewycz@gmail.com>
+ *   2018 Felix Reimann <felix@fex-it.de>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,20 +24,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *******************************************************************************/
-package de.cs12.tutorial;
+ */
 
-import net.sf.opendse.optimization.SpecificationWrapper;
-import net.sf.opendse.optimization.io.IOModule;
+package net.sf.opendse.tutorial;
 
-import org.opt4j.core.config.annotations.File;
-import org.opt4j.core.start.Constant;
+import org.opt4j.core.start.Opt4J;
 
-public class FlummyModule extends IOModule {
+public class Part6 {
 
-	@Override
-	protected void config() {
-		bind(SpecificationWrapper.class).to(FlummySpec.class).in(SINGLETON);
-	}
+    public static void main(String[] args) throws Exception{
+        Opt4J.main(args);
+    }
 
 }
